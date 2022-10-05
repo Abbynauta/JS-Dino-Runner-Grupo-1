@@ -36,7 +36,7 @@ class Game:
     def update(self):
         user_input = pygame.key.get_pressed()
         self.player.update(user_input)
-        self.obstacle_manager.update(self.game_speed)
+        self.obstacle_manager.update(self)
         
     def draw(self):
         self.clock.tick(FPS)
