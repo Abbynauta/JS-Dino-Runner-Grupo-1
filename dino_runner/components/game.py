@@ -1,3 +1,4 @@
+from turtle import Screen
 import pygame
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
@@ -85,10 +86,22 @@ class Game:
            text_rect.center = (half_screen_width, half_screen_height)
            self.screen.blit(text_component, text_rect)
         else:
-        #MENSAJE DE VOLVER A JUGAR
-        #NUMERO DE MUERTES
-        #mostrar score
-            pass
+           font = pygame.font.Font(FONT_STYLE, 25)
+           #MENSAJE DE VOLVER A JUGAR
+           text_component = font.render("Play Again", True, (0, 0, 0))
+           text_rect = text_component.get_rect()
+           text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+           self.screen.blit(text_component, text_rect)
+           #mostrar score
+           text_component = font.render(f'Your Score is: {self.score}', True, (0,0,0))
+           text_rect = text_component.get_rect()
+           text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
+           self.screen.blit(text_component, text_rect)
+           #numero de muertes
+           text_component = font.render(f'Number of deaths: {self.death_count}',True, (0,0,0))
+           text_rect = text_component.get_rect()
+           text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
+           self.screen.blit(text_component, text_rect)
         #mostrar icono
         self.screen.blit(RUNNING[0],(half_screen_width -25, half_screen_height -140) )
         #actualizar ventana
