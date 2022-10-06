@@ -5,7 +5,7 @@ import os
 TITLE = "Chrome Dino Runner"
 SCREEN_HEIGHT = 550
 SCREEN_WIDTH = 850
-FPS = 25
+FPS = 35
 IMG_DIR = os.path.join(os.path.dirname(__file__), "..", "assets")
 
 # Assets Constants
@@ -70,3 +70,5 @@ BG = pygame.image.load(os.path.join(IMG_DIR, 'Other/Track.png'))
 HEART = pygame.image.load(os.path.join(IMG_DIR, 'Other/SmallHeart.png'))
 
 DEFAULT_TYPE = "default"
+
+FONT_STYLE = "freesansbold.ttf"
