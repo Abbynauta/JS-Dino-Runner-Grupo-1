@@ -93,7 +93,7 @@ class Game:
            text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
            self.screen.blit(text_component, text_rect)
            #mostrar score
-           text_component = font.render(f'Your Score is: {self.score}', True, (0,0,0))
+           text_component = font.render(f'Your Score is: {self.score.score}', True, (0,0,0))
            text_rect = text_component.get_rect()
            text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
            self.screen.blit(text_component, text_rect)
@@ -119,3 +119,4 @@ class Game:
     def on_death(self):
         self.playing = False
         self.death_count += 1
+        

@@ -1,14 +1,12 @@
 import pygame
 from pygame.sprite import Sprite
-
 from dino_runner.utils.constants import RUNNING, JUMPING, DUCKING
 
 
 class Dinosaur(Sprite):
-    
     X_POS = 80
     Y_POS = 310
-    JUMP_VELOCITY = 8.5
+    JUMP_VELOCITY = 9
     Y_POS_DUCK = 340
 
     def __init__(self):
