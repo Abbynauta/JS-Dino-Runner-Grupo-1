@@ -19,10 +19,7 @@ class ObstacleManager:
                 self.obstacles.append(BirdUp(BIRD))
             else:
                 self.obstacles.append(BirdDown(BIRD))
-                
-            #bird_type = "UP" if random.randint(0,1) == 0 else "DOWN"
-            #self.obstacles.append(Bird(bird_type))
-            
+         
         for obstacle in self.obstacles:
             obstacle.update(game_speed, self.obstacles)
             if player.dino_rect.colliderect(obstacle.rect):

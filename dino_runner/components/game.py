@@ -1,14 +1,12 @@
 from turtle import width
-import pygame
+import pygame 
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
 from dino_runner.components.player_hearts.player_heart_manager import PlayerHeartManager
 from dino_runner.components.power_ups.power_up_manager import PowerUpManager
-from dino_runner.components.power_ups.shield import Shield
 from dino_runner.components.score import Score
-from dino_runner.utils.constants import BG,DEFAULT_TYPE, FONT_STYLE, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, FPS, SHIELD, SHIELD_TYPE, TITLE, RUNNING
-
-
+from dino_runner.utils.constants import BG,DEFAULT_TYPE, FONT_STYLE, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, FPS, SHIELD_TYPE, TITLE, RUNNING
+from pygame import mixer
 
 class Game:
     def __init__(self):
@@ -22,6 +20,10 @@ class Game:
         self.game_speed = 20
         self.x_pos_bg = 0
         self.y_pos_bg = 380
+        mixer.init()
+        #self.sound = pygame.mixer.Sound([0])
+        #self.sound = pygame.mixer.Sound([1])
+        
         
         self.player = Dinosaur()
         self.obstacle_manager = ObstacleManager()
@@ -38,7 +40,7 @@ class Game:
                 self.show_menu()
         
         pygame.quit()
-        
+    
     def run(self):
         # Game loop: events - update - draw
         self.playing = True
@@ -66,7 +68,6 @@ class Game:
         self.obstacle_manager.update(self.game_speed, self.player, self.on_death)
         self.score.update(self)
         self.power_up_manager.update(self.game_speed, self.player, self.score.score)
-        self.heart_manager.draw(self.screen)
         
     def draw(self):
         self.clock.tick(FPS)
@@ -76,7 +77,8 @@ class Game:
         self.obstacle_manager.draw(self.screen)
         self.score.draw(self.screen)
         self.power_up_manager.draw(self.screen)
-        self.draw_power_up_active(self.screen)
+        self.heart_manager.draw(self.screen)
+        self.draw_power_up_active()
         
         pygame.display.update()
         pygame.display.flip()
@@ -91,7 +93,7 @@ class Game:
         self.x_pos_bg -= self.game_speed
         
     def msg_menu(self,message,width,height):
-        font = pygame.font.Font(FONT_STYLE, 25)
+        font = pygame.font.Font(FONT_STYLE, 30)
         text_component = font.render(message, True, (0,0,0))
         text_rect = text_component.get_rect()
         text_rect.center = (width, height)
@@ -102,14 +104,10 @@ class Game:
         #mostrar mensaje de bienvenida
         height = SCREEN_HEIGHT // 2 
         width = SCREEN_WIDTH // 2
-        if self.death_count == 0: 
-           font = pygame.font.Font(FONT_STYLE, 30)
-           text_component = font.render("Press any Key to Start", True, (0, 0, 0))
-           text_rect = text_component.get_rect()
-           text_rect.center = (width,height)
-           self.screen.blit(text_component, text_rect)
+       # self.sound[0].play()
+        if self.death_count == 0:
+           self.msg_menu("Press any Key to Start",width, height)
         else:
-           font = pygame.font.Font(FONT_STYLE, 25)
            #MENSAJE DE VOLVER A JUGAR
            self.msg_menu("Play Again",width, height)
            #mostrar score
@@ -143,12 +141,14 @@ class Game:
         
         return is_invincible
         
-    def draw_power_up_active(self,width):
-        width = 500
+    def draw_power_up_active(self):
+        height = SCREEN_HEIGHT // 2 
+        width = SCREEN_WIDTH // 2
         if self.player.has_power_up:
-            time_to_show = round((self.player.power_up_time_up - pygame.time.get_ticks())/1000)
+            time_to_show = round((self.player.power_up_time_up - pygame.time.get_ticks())/1000, 2)
             if time_to_show >= 0:
-                self.msg_menu(f"{self.player.type.capitalize()} enabled for {time_to_show} seconds.",width)
+                self.msg_menu(f"{self.player.type.capitalize()} enabled for {time_to_show} seconds.",
+                              self.screen, width-50,height-260)
             else:
              self.player.has_power_up = False
-             self.player.type = DEFAULT_TYPE
+             self.player.type = DEFAULT_TYPE  

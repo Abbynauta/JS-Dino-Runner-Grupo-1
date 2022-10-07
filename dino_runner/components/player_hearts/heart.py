@@ -1,11 +1,11 @@
 from dino_runner.utils.constants import HEART
 
 class Heart:
-    def __init__(self, x_pos, y_pos):
+    def __init__(self, widht, heigth):
         self.image = HEART
         self.rect = self.image.get_rect()
-        self.rect.x = x_pos
-        self.rect.y = y_pos
+        self.rect.x = widht
+        self.rect.y = heigth
         
     def draw(self, screen):
         screen.blit(self.image, self.rect)

@@ -76,3 +76,9 @@ HAMMER_TYPE = "hammer"
 
 FONT_STYLE = "freesansbold.ttf"
 HEART_COUNT = 3
+
+#MUSIC = [
+    #pygame.mixer.Sound("gamesound.wav"),
+    #pygame.mixer.Sound("Dino_Sounds_jump.wav")
+#]
+    
