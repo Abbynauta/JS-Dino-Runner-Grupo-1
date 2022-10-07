@@ -1,9 +1,12 @@
-from turtle import Screen
+from turtle import width
 import pygame
 from dino_runner.components.dinosaur import Dinosaur
 from dino_runner.components.obstacles.obstacle_manager import ObstacleManager
+from dino_runner.components.player_hearts.player_heart_manager import PlayerHeartManager
+from dino_runner.components.power_ups.power_up_manager import PowerUpManager
+from dino_runner.components.power_ups.shield import Shield
 from dino_runner.components.score import Score
-from dino_runner.utils.constants import BG, FONT_STYLE, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, FPS, TITLE, RUNNING
+from dino_runner.utils.constants import BG,DEFAULT_TYPE, FONT_STYLE, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, FPS, SHIELD, SHIELD_TYPE, TITLE, RUNNING
 
 
 
@@ -22,6 +25,8 @@ class Game:
         
         self.player = Dinosaur()
         self.obstacle_manager = ObstacleManager()
+        self.power_up_manager = PowerUpManager()
+        self.heart_manager = PlayerHeartManager()
         
         self.death_count = 0
         self.score = Score()
@@ -43,6 +48,13 @@ class Game:
             self.update()
             self.draw()
             
+    def reset_game(self):
+        self.game_speed = 20
+        self.obstacle_manager.reset_obstacles()
+        self.score.restart_score()
+        self.power_up_manager.reset_power_ups()
+        self.heart_manager.reset_hearts()
+            
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -53,6 +65,8 @@ class Game:
         self.player.update(user_input)
         self.obstacle_manager.update(self.game_speed, self.player, self.on_death)
         self.score.update(self)
+        self.power_up_manager.update(self.game_speed, self.player, self.score.score)
+        self.heart_manager.draw(self.screen)
         
     def draw(self):
         self.clock.tick(FPS)
@@ -61,6 +75,8 @@ class Game:
         self.player.draw(self.screen)
         self.obstacle_manager.draw(self.screen)
         self.score.draw(self.screen)
+        self.power_up_manager.draw(self.screen)
+        self.draw_power_up_active(self.screen)
         
         pygame.display.update()
         pygame.display.flip()
@@ -73,37 +89,35 @@ class Game:
             self.screen.blit(BG, (image_width + self.x_pos_bg, self.y_pos_bg))
             self.x_pos_bg = 0
         self.x_pos_bg -= self.game_speed
+        
+    def msg_menu(self,message,width,height):
+        font = pygame.font.Font(FONT_STYLE, 25)
+        text_component = font.render(message, True, (0,0,0))
+        text_rect = text_component.get_rect()
+        text_rect.center = (width, height)
+        self.screen.blit(text_component, text_rect)
     
     def show_menu(self):
         self.screen.fill((255,255,255)) #Pintar ventana
         #mostrar mensaje de bienvenida
-        half_screen_height = SCREEN_HEIGHT // 2 
-        half_screen_width = SCREEN_WIDTH // 2
+        height = SCREEN_HEIGHT // 2 
+        width = SCREEN_WIDTH // 2
         if self.death_count == 0: 
            font = pygame.font.Font(FONT_STYLE, 30)
            text_component = font.render("Press any Key to Start", True, (0, 0, 0))
            text_rect = text_component.get_rect()
-           text_rect.center = (half_screen_width, half_screen_height)
+           text_rect.center = (width,height)
            self.screen.blit(text_component, text_rect)
         else:
            font = pygame.font.Font(FONT_STYLE, 25)
            #MENSAJE DE VOLVER A JUGAR
-           text_component = font.render("Play Again", True, (0, 0, 0))
-           text_rect = text_component.get_rect()
-           text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-           self.screen.blit(text_component, text_rect)
+           self.msg_menu("Play Again",width, height)
            #mostrar score
-           text_component = font.render(f'Your Score is: {self.score.score}', True, (0,0,0))
-           text_rect = text_component.get_rect()
-           text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50)
-           self.screen.blit(text_component, text_rect)
+           self.msg_menu(f'Your Score is: {self.score.score}',width, height + 50)
            #numero de muertes
-           text_component = font.render(f'Number of deaths: {self.death_count}',True, (0,0,0))
-           text_rect = text_component.get_rect()
-           text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
-           self.screen.blit(text_component, text_rect)
+           self.msg_menu(f'Number of deaths: {self.death_count}',width, height + 100)
         #mostrar icono
-        self.screen.blit(RUNNING[0],(half_screen_width -25, half_screen_height -140) )
+        self.screen.blit(RUNNING[0],(width -25, height -140) )
         #actualizar ventana
         pygame.display.update()
         #escuchar eventos
@@ -117,6 +131,24 @@ class Game:
                 self.run()
             
     def on_death(self):
-        self.playing = False
-        self.death_count += 1
+        has_shield = self.player.type == SHIELD_TYPE
+        is_invincible = has_shield or self.heart_manager.heart_count > 0
+        if not has_shield:
+            self.heart_manager.reduce_heart()
+            
+        if not is_invincible:
+            pygame.time.delay(500)
+            self.playing = False
+            self.death_count += 1
         
+        return is_invincible
+        
+    def draw_power_up_active(self,width):
+        width = 500
+        if self.player.has_power_up:
+            time_to_show = round((self.player.power_up_time_up - pygame.time.get_ticks())/1000)
+            if time_to_show >= 0:
+                self.msg_menu(f"{self.player.type.capitalize()} enabled for {time_to_show} seconds.",width)
+            else:
+             self.player.has_power_up = False
+             self.player.type = DEFAULT_TYPE
